@@ -90,7 +90,7 @@ def bi_agent(state: AgentState):
     """
 
 
-    file_path = '/Users/ay/Desktop/GenAI-POC/Perrigo/Perrigo-GenAI-Answer-Bot'
+    file_path = ''
 
     # Loading dataset
     data_source = 'Data/Outbound_Data.csv'
