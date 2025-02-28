@@ -641,7 +641,7 @@ class AgenticCostOptimizer:
         all_results = []
         for shipment_window in range(self.shipment_window_range[0], self.shipment_window_range[1] + 1):
             # st.write(f"Consolidating orders for shipment window: {shipment_window}")
-            print(f"Consolidating orders for shipment window: {shipment_window}")
+            st.toast(f"Consolidating orders for shipment window: {shipment_window}")
             high_priority_limit = 0
             all_consolidated_shipments = []
             for _, group_df in grouped:
