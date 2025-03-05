@@ -42,10 +42,6 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import HumanMessage
 
 
-## Model/LLM related imports
-# from langchain_openai import ChatOpenAI
-from config import llm
-
 
 ############################################################################################################################################################################################
 def get_chatgpt_response(api_key, instructions, user_query):
@@ -443,7 +439,7 @@ def get_shipment_cost(prod_type, short_postcode, total_pallets,rate_card):
     return shipment_cost
 
 
-def process_shipment(shipment, consolidated_shipments, allocation_matrix, working_df, current_date, capacity):
+def process_shipment(shipment, consolidated_shipments, allocation_matrix, working_df, current_date, capacity,rate_card):
     total_pallets = sum(order['Total Pallets'] for order in shipment)
     utilization = (total_pallets / capacity) * 100
 
