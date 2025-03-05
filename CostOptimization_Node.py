@@ -610,6 +610,11 @@ class AgenticCostOptimizer:
         self.shipment_window_range = (1, 10)
         self.total_shipment_capacity = 36
         self.utilization_threshold = 95
+
+    def load_data(self):
+        self.rate_card_ambient = pd.read_excel('Complete Input.xlsx',sheet_name="AMBIENT")
+        self.rate_card_ambcontrol = pd.read_excel('Complete Input.xlsx',sheet_name="AMBCONTROL")
+        return {"rate_card_ambient":self.rate_card_ambient,"rate_card_ambcontrol":self.rate_card_ambcontrol}
     
     def get_filtered_df_from_question(self):
         """Extracts filtered data based on user query parameters."""
@@ -639,6 +644,7 @@ class AgenticCostOptimizer:
         best_params = None
 
         all_results = []
+        rate_card = self.load_data()
         for shipment_window in range(self.shipment_window_range[0], self.shipment_window_range[1] + 1):
             # st.write(f"Consolidating orders for shipment window: {shipment_window}")
             st.toast(f"Consolidating orders for shipment window: {shipment_window}")
@@ -646,7 +652,7 @@ class AgenticCostOptimizer:
             all_consolidated_shipments = []
             for _, group_df in grouped:
                 consolidated_shipments, _ = consolidate_shipments(
-                    group_df, high_priority_limit, self.utilization_threshold, shipment_window, date_range, lambda: None, self.total_shipment_capacity
+                    group_df, high_priority_limit, self.utilization_threshold, shipment_window, date_range, lambda: None, self.total_shipment_capacity,rate_card
                 )
                 all_consolidated_shipments.extend(consolidated_shipments)
             
@@ -783,9 +789,10 @@ class AgenticCostOptimizer:
         date_range = pd.date_range(start=self.parameters['start_date'], end=self.parameters['end_date'])
         
         all_consolidated_shipments = []
+        rate_card = self.load_data()
         for _, group_df in grouped:
             consolidated_shipments, _ = consolidate_shipments(
-                group_df, 0, 95, self.parameters['window'], date_range, lambda: None, self.total_shipment_capacity
+                group_df, 0, 95, self.parameters['window'], date_range, lambda: None, self.total_shipment_capacity,rate_card
             )
             all_consolidated_shipments.extend(consolidated_shipments)
 
