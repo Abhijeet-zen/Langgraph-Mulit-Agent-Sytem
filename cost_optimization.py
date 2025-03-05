@@ -403,10 +403,10 @@ def best_fit_decreasing(items, capacity):
 
     return shipments
 
-def get_baseline_cost(prod_type, short_postcode, pallets):
+def get_baseline_cost(prod_type, short_postcode, pallets,rate_card):
     total_cost = 0
     for pallet in pallets:
-        cost = get_shipment_cost(prod_type, short_postcode, pallet)
+        cost = get_shipment_cost(prod_type, short_postcode, pallet,rate_card)
         if pd.isna(cost):
             return np.nan
         total_cost += cost
@@ -420,8 +420,8 @@ def load_data():
     rate_card_ambcontrol = pd.read_excel('Complete Input.xlsx', sheet_name='AMBCONTROL')
     return rate_card_ambient, rate_card_ambcontrol
 
-def get_shipment_cost(prod_type, short_postcode, total_pallets):
-    rate_card_ambient,rate_card_ambcontrol = load_data()
+def get_shipment_cost(prod_type, short_postcode, total_pallets,rate_card):
+    rate_card_ambient,rate_card_ambcontrol = rate_card["rate_card_ambient"],rate_card["rate_card_ambcontrol"]
     if prod_type == 'AMBIENT':
         rate_card = rate_card_ambient
     elif prod_type == 'AMBCONTROL':
@@ -450,12 +450,12 @@ def process_shipment(shipment, consolidated_shipments, allocation_matrix, workin
     prod_type = shipment[0]['PROD TYPE']
     short_postcode = shipment[0]['SHORT_POSTCODE']
 ########################################################################################################################
-    shipment_cost = get_shipment_cost(prod_type, short_postcode, total_pallets)
+    shipment_cost = get_shipment_cost(prod_type, short_postcode, total_pallets,rate_card)
 ########################################################################################################################
 
     pallets = [order['Total Pallets'] for order in shipment]
 ########################################################################################################################
-    baseline_cost = get_baseline_cost(prod_type, short_postcode, pallets)
+    baseline_cost = get_baseline_cost(prod_type, short_postcode, pallets,rate_card)
 ########################################################################################################################
     shipment_info = {
         'Date': current_date,
@@ -483,7 +483,7 @@ def process_shipment(shipment, consolidated_shipments, allocation_matrix, workin
         working_df.drop(working_df[working_df['ORDER_ID'] == order['ORDER_ID']].index, inplace=True)
 
 
-def consolidate_shipments(df, high_priority_limit, utilization_threshold, shipment_window, date_range, progress_callback, capacity):
+def consolidate_shipments(df, high_priority_limit, utilization_threshold, shipment_window, date_range, progress_callback, capacity,rate_card):
     consolidated_shipments = []
     allocation_matrix = pd.DataFrame(0, index=df['ORDER_ID'], columns=date_range)
     
@@ -532,7 +532,7 @@ def consolidate_shipments(df, high_priority_limit, utilization_threshold, shipme
                     # Always process shipments with high priority orders, apply threshold only to pure low priority shipments
                     if any(order['Priority'] <= high_priority_limit for order in shipment) or utilization >= utilization_threshold:
 ########################################################################################################################
-                        process_shipment(shipment, consolidated_shipments, allocation_matrix, working_df, current_date, capacity)
+                        process_shipment(shipment, consolidated_shipments, allocation_matrix, working_df, current_date, capacity,rate_card)
 ########################################################################################################################        
         progress_callback()
     
